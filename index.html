@@ -1,0 +1,448 @@
+<title>ACES Score Rankings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Whole-team rankings for youth trap and skeet teams using the ACES Score. Created and hosted by the Aitkin County Elite Sharpshooters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: brand from the ACES logo. Charcoal hero band holding the logo sticker, light body, logo orange for scores and calls to action. */
+:root{
+  --paper:#f6f5f3; --card:#ffffff; --ink:#1c1c1d; --muted:#5e5f61; --line:#e2dfdb;
+  --char:#1f1f20; --char-ink:#f4f2ef; --steel:#6d6e70;
+  --orange:#e85a24; --orange-ink:#ffffff; --orange-soft:#fde6db; --hl:#fff1e8;
+  --f-display:"Saira Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131314; --card:#1c1c1e; --ink:#ecebe8; --muted:#a4a3a0; --line:#323234;
+  --char:#0b0b0c; --char-ink:#f1efec; --steel:#8c8d90;
+  --orange:#ff7440; --orange-ink:#1a0d07; --orange-soft:#3a1f14; --hl:#2a1d15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131314; --card:#1c1c1e; --ink:#ecebe8; --muted:#a4a3a0; --line:#323234;
+  --char:#0b0b0c; --char-ink:#f1efec; --steel:#8c8d90;
+  --orange:#ff7440; --orange-ink:#1a0d07; --orange-soft:#3a1f14; --hl:#2a1d15; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--char)}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.02;text-wrap:balance;margin:0;text-transform:uppercase}
+h2{font-size:clamp(2.1rem,4.4vw,3rem);font-weight:800;letter-spacing:.01em}
+h3{font-size:1.4rem;font-weight:700;letter-spacing:.02em}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.16em;font-size:.88rem;font-weight:700;color:var(--orange)}
+p{margin:0;max-width:65ch}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;padding:11px 20px;border-radius:4px;text-decoration:none;border:2px solid var(--orange);cursor:pointer}
+.btn.primary{background:var(--orange);color:var(--orange-ink)}
+.btn.ghost{background:transparent;color:inherit;border-color:currentColor}
+
+/* header */
+.top{background:var(--char);color:var(--char-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;border-bottom:3px solid var(--orange)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--f-display);font-weight:800;font-size:1.6rem;letter-spacing:.08em;color:var(--orange)}
+.brand img,.brand svg{width:34px;height:34px;object-fit:contain;flex:none}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--f-display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.98rem}
+nav a{text-decoration:none;opacity:.85}
+nav a:hover{opacity:1;color:var(--orange)}
+
+/* hero */
+.hero{background:var(--char);color:var(--char-ink);padding-block:44px 56px}
+.hero .wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center}
+.hero .wrap > *{min-width:0}
+.hero h1{font-size:clamp(3rem,8vw,6.2rem);font-weight:800;letter-spacing:.01em}
+.hero h1 span{color:var(--orange)}
+.hero p{margin-top:16px;font-size:1.15rem;opacity:.9}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.logo-wrap{display:grid;place-items:center}
+.logo-wrap img{width:100%;max-width:340px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.35))}
+.logo-fallback{width:min(300px,100%);aspect-ratio:1;display:grid;place-items:center;border:3px solid var(--orange);border-radius:18px;transform:rotate(-6deg)}
+.logo-fallback b{font-family:var(--f-display);font-size:5rem;font-weight:800;color:var(--orange);letter-spacing:.04em;transform:rotate(6deg)}
+
+section{padding-block:64px;border-bottom:1px solid var(--line)}
+.sec-head{display:grid;gap:10px;margin-bottom:30px}
+
+.credit{margin-top:22px;font-size:.95rem;opacity:.8}
+.credit b{color:var(--orange);font-weight:600}
+
+/* formula */
+.formula{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--f-display);font-size:clamp(1.15rem,2.6vw,1.6rem);font-weight:700;text-transform:uppercase;margin:6px 0 28px}
+.formula .t{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:3px 10px}
+.formula .eq{color:var(--orange);font-weight:800}
+.explain{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.explain > *{min-width:0}
+.defs{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.defs li{display:grid;grid-template-columns:130px 1fr;gap:12px}
+.defs b{font-family:var(--f-display);font-size:1.15rem;font-weight:700;text-transform:uppercase}
+.defs span{color:var(--muted)}
+.why{margin-top:24px;display:grid;gap:12px}
+.calc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:14px}
+.calc label{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-size:.9rem;font-weight:700;color:var(--muted)}
+.calc textarea{width:100%;min-height:72px;font-family:var(--f-mono);font-size:.95rem;padding:10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);resize:vertical}
+.calc .result{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.calc .result .v{font-family:var(--f-display);font-size:3.2rem;font-weight:800;color:var(--orange);line-height:1}
+.calc .err{color:var(--orange);font-size:.9rem}
+.boxplot{width:100%;height:auto;display:block}
+.boxplot text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.boxplot .k{font-family:var(--f-display);font-size:13px;font-weight:700;fill:var(--ink);text-transform:uppercase}
+.comp{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.comp div{border-top:2px solid var(--line);padding-top:6px;min-width:0}
+.comp small{display:block;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:.78rem;font-weight:600}
+.comp b{font-family:var(--f-mono);font-size:1.05rem}
+
+/* rankings */
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:16px}
+.field{display:grid;gap:4px;min-width:0}
+.field > label,.field > .lbl{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;font-weight:700;color:var(--muted)}
+select,input[type=search]{font:inherit;font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink);max-width:100%}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.tabs button{font-family:var(--f-display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.92rem;padding:8px 14px;border:0;background:var(--card);color:var(--muted);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.find{font-family:var(--f-display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.92rem;padding:8px 14px;border:1px solid var(--orange);border-radius:4px;background:transparent;color:var(--orange);cursor:pointer}
+.find[aria-pressed=true]{background:var(--orange);color:var(--orange-ink)}
+.meta{color:var(--muted);font-size:.9rem;margin-bottom:10px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;font-weight:700;color:var(--muted);background:var(--card)}
+th.r,td.r{text-align:right}
+td.r{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+td.team{white-space:normal;min-width:200px}
+td.aces{font-weight:600;color:var(--orange)}
+tr.mine td{background:var(--hl)}
+tr.mine td.team{font-weight:600}
+.rk{font-family:var(--f-display);font-weight:800;font-size:1.1rem}
+.src{font-family:var(--f-display);font-size:.74rem;letter-spacing:.08em;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--muted);margin-left:6px}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--orange);vertical-align:middle;margin-left:8px;opacity:.75}
+.more{margin-top:14px;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:.95rem;padding:9px 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
+.empty{padding:24px;color:var(--muted)}
+.h2h{margin-top:22px;color:var(--muted);font-size:.95rem}
+
+/* league */
+.sim-flag{background:var(--orange-soft);border-left:4px solid var(--orange);padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:.95rem}
+.lg-conf{display:grid;gap:16px;margin-top:28px}
+.lg-conf h3{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.lg-conf h3 small{font-family:var(--f-body);text-transform:none;font-weight:400;font-size:.9rem;color:var(--muted)}
+.matches{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:grid;gap:8px;min-width:0}
+.mside{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline}
+.mside .nm{min-width:0;overflow-wrap:anywhere}
+.mside .sc{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.mside.win .nm,.mside.win .sc{font-weight:600}
+.mside.win .sc{color:var(--orange)}
+.mside.mine .nm{text-decoration:underline;text-decoration-color:var(--orange);text-underline-offset:3px}
+.pts{font-family:var(--f-display);font-weight:700;font-size:.85rem;letter-spacing:.06em;padding:1px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pts.hot{background:var(--orange);border-color:var(--orange);color:var(--orange-ink)}
+.mmeta{font-size:.82rem;color:var(--muted)}
+.delta.up{color:var(--orange);font-weight:600}
+.legend{color:var(--muted);font-size:.88rem;margin-top:10px}
+
+/* contact */
+.contact{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.contact > div{min-width:0;display:grid;gap:10px;align-content:start}
+.copy{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.copy code{font-family:var(--f-mono);font-size:.95rem;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:7px 9px;user-select:all;word-break:break-all}
+.copy button{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:7px 12px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink);cursor:pointer}
+footer{padding-block:28px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:820px){
+  .hero .wrap,.explain,.contact{grid-template-columns:1fr}
+  .logo-wrap{order:-1}
+  .logo-wrap img{max-width:220px}
+  .defs li{grid-template-columns:110px 1fr}
+  .comp{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="ACES home">
+      <img src="logo.png" alt="" onerror="this.remove()">ACES
+    </a>
+    <nav aria-label="Sections">
+      <a href="#results">Rankings</a><a href="#league">League</a><a href="#score">How it works</a><a href="#contact">About</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Youth trap and skeet · Whole-team rankings</div>
+      <h1><span>ACES</span> Score Rankings</h1>
+      <p>The ACES Score ranks clay target teams on how the whole team shoots, not just the top few shooters. Rankings cover the USA High School Clay Target League and SCTP.</p>
+      <div class="cta">
+        <a class="btn primary" href="#results">See the rankings</a>
+        <a class="btn ghost" href="#score">How the score works</a>
+      </div>
+      <p class="credit">Created and hosted by the <b>Aitkin County Elite Sharpshooters</b>.</p>
+    </div>
+    <div class="logo-wrap">
+      <img src="logo.png" alt="ACES logo: Aitkin County Elite Sharpshooters" onerror="this.outerHTML='&lt;div class=&quot;logo-fallback&quot; aria-hidden=&quot;true&quot;&gt;&lt;b&gt;ACES&lt;/b&gt;&lt;/div&gt;'">
+    </div>
+  </div>
+</div>
+
+<main>
+<section id="results">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Rankings</div>
+      <h2>Team rankings by ACES Score</h2>
+      <p>Trap and skeet teams from the High School Clay Target League and SCTP, ranked on the whole team using the ACES Score. Teams need at least <span id="min-n">8</span> scores to be ranked.</p>
+      <p><b>MN SCTP</b> seeds Minnesota SCTP teams into conferences of 5 to 7 the way the proposed virtual league would; switch to Conferences to see them. Until teams sign up for the season, the MN SCTP teams shown are simulated stand-ins. <b>MN Combined</b> ranks Minnesota SCTP and High School League teams together.</p>
+    </div>
+    <div class="controls">
+      <div class="field"><span class="lbl">Discipline</span>
+        <div class="tabs" role="group" aria-label="Discipline"><button id="d-trap" aria-pressed="true">Trap</button><button id="d-skeet" aria-pressed="false">Skeet</button></div>
+      </div>
+      <div class="field"><label for="ds">Results</label><select id="ds"></select></div>
+      <div class="field"><span class="lbl">View</span>
+        <div class="tabs" role="group" aria-label="View"><button id="v-teams" aria-pressed="true">Teams</button><button id="v-conf" aria-pressed="false">Conferences</button></div>
+      </div>
+      <div class="field"><label for="st">State</label><select id="st"><option value="">All states</option></select></div>
+      <div class="field" style="flex:1;min-width:180px"><label for="q">Search</label><input type="search" id="q" placeholder="Team or conference"></div>
+      <div class="field"><span class="lbl">&nbsp;</span><button class="find" id="find" aria-pressed="false">Find ACES</button></div>
+    </div>
+    <div class="meta" id="meta"></div>
+    <div class="tbl"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+    <button class="more" id="more" hidden>Show more</button>
+    <p class="h2h">Sporting clays and 5-stand courses differ from field to field, so those events are compared head to head on the same course rather than by ACES Score.</p>
+  </div>
+</section>
+
+<section id="league">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">MN SCTP virtual league</div>
+      <h2>Week by week</h2>
+      <p>Each week, teams in a conference are paired head to head on their ACES Score. A win earns 2 points and a tie 1, and any team that beats its seeding baseline earns +1, win or lose. A team with a bye plays the conference average.</p>
+    </div>
+    <div class="sim-flag" id="lg-sim" hidden>Simulated season. These weeks are generated from real shooters' scores to show how the league works. Real results replace them once the season starts.</div>
+    <div class="controls">
+      <div class="field"><span class="lbl">Discipline</span>
+        <div class="tabs" role="group" aria-label="League discipline"><button id="lg-trap" aria-pressed="true">Trap</button><button id="lg-skeet" aria-pressed="false">Skeet</button></div>
+      </div>
+      <div class="field"><span class="lbl">Week</span><div class="tabs" role="group" aria-label="Week" id="lg-weeks"></div></div>
+      <div class="field"><label for="lg-conf">Conference</label><select id="lg-conf"></select></div>
+    </div>
+    <div id="lg-body"></div>
+    <p class="legend">W win (2 pts) · T tie (1) · L loss (0) · <b>+1</b> beat the team's baseline · Baseline = ACES Score from the seeding weeks · Scores = 50-target scores posted that week</p>
+  </div>
+</section>
+
+<section id="score">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">The algorithm</div>
+      <h2>How the ACES Score works</h2>
+      <p>Most team scores add up the top few shooters. That rewards a team with two stars and a weak bench. The ACES Score looks at the whole spread of a team's 50-target scores and adds five points from its box plot.</p>
+    </div>
+    <div class="formula" aria-label="ACES equals Median plus Q3 plus Q1 plus Lower whisker plus Max">
+      <span class="t" style="color:var(--orange);border-color:var(--orange)">ACES</span><span class="eq">=</span>
+      <span class="t">Median</span><span>+</span><span class="t">Q3</span><span>+</span><span class="t">Q1</span><span>+</span><span class="t">Lower whisker</span><span>+</span><span class="t">Max</span>
+    </div>
+    <div class="explain">
+      <div>
+        <ul class="defs">
+          <li><b>Median</b><span>The middle score on the team. Half the scores are above it.</span></li>
+          <li><b>Q3</b><span>Upper quartile: 75% of scores are at or below it. Shows how strong the upper half is.</span></li>
+          <li><b>Q1</b><span>Lower quartile: 25% of scores are at or below it. Shows how solid the lower half is.</span></li>
+          <li><b>Lower whisker</b><span>Q1 − 1.5 × (Q3 − Q1), but never below the team's lowest score. A long tail of low scores pulls it down.</span></li>
+          <li><b>Max</b><span>The team's best 50-target score.</span></li>
+        </ul>
+        <div class="why">
+          <p>Four of the five numbers describe the middle and bottom of the team. Only one rewards the single best shooter. A team climbs when its newest shooters improve.</p>
+          <p>Each part tops out at 50, so a perfect score is 250. The parts are statistics, not sums, so a team of 8 and a team of 80 are compared fairly no matter how many rounds each posted. Quartiles use the same inclusive method as Google Sheets <span class="num">QUARTILE</span>.</p>
+        </div>
+      </div>
+      <div class="calc">
+        <label for="calc-in">Try it: paste a team's 50-target scores</label>
+        <textarea id="calc-in" spellcheck="false">50 49 48 48 47 47 46 45 45 44 43 41 40 38 36 33 27</textarea>
+        <div class="result"><span class="v num" id="calc-v">–</span><span id="calc-n" class="meta"></span></div>
+        <div class="err" id="calc-err" hidden></div>
+        <svg class="boxplot" id="calc-svg" viewBox="0 0 520 120" role="img" aria-label="Box plot of the entered scores"></svg>
+        <div class="comp" id="calc-comp"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">About</div>
+      <h2>Built by the ACES team</h2>
+    </div>
+    <div class="contact">
+      <div>
+        <h3>Who we are</h3>
+        <p>The Aitkin County Elite Sharpshooters (ACES) are a youth shooting team in central Minnesota. We created the ACES Score to see how our whole team was doing, and we host these rankings so every team can compare the same way.</p>
+        <p>We're always looking to add new shooters. If you're interested, reach out.</p>
+        <p><a class="btn ghost" href="https://www.facebook.com/AitkinCountyEliteSharpshooters" target="_blank" rel="noopener">ACES on Facebook</a></p>
+      </div>
+      <div>
+        <h3>Questions or scores to add</h3>
+        <p>Email us with questions about the ACES Score. Youth programs not listed here can send their 50-target trap or skeet scores to be added to the rankings.</p>
+        <div class="copy"><code id="email">aitkincountyelitesharpshooters@gmail.com</code><button id="copy-email" type="button">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">ACES Score Rankings, created and hosted by the Aitkin County Elite Sharpshooters · Updated <span id="upd">–</span>. Scores come from public league results. The ACES Score is our own measure, not an official league ranking.</div></footer>
+
+<script src="rankings.js"></script>
+<script src="league.js"></script>
+<script>
+(function(){
+  var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf');
+  if(!L||!L.disciplines){body.innerHTML='<p class="empty">League results have not been generated yet. Run league.py.</p>';return;}
+  var MINE=/aitkin county elite sharpshooters/i,disc='trap',week=null;
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function f(v){return v==null?'–':(Math.round(v*100)/100).toFixed(2)}
+  function D(){return L.disciplines[disc]}
+  function setup(){
+    var d=D();
+    document.getElementById('lg-sim').hidden=d.mode!=='simulated';
+    if(week==null||d.weeks.indexOf(week)<0)week=d.weeks.length?d.weeks[d.weeks.length-1]:null;
+    wkBox.innerHTML=d.weeks.map(function(w){return '<button data-wk="'+w+'" aria-pressed="'+(w===week)+'">'+w+'</button>'}).join('')||'<button disabled>–</button>';
+    var keep=sel.value,mineIdx=-1;
+    sel.innerHTML='<option value="all">All conferences</option>'+d.conferences.map(function(c,i){
+      if(c.teams.some(function(t){return MINE.test(t.team)}))mineIdx=i;
+      return '<option value="'+i+'">'+esc(c.name)+'</option>'}).join('');
+    sel.value=(keep&&sel.querySelector('option[value="'+keep+'"]'))?keep:(mineIdx>=0?String(mineIdx):'all');
+    render();
+  }
+  function standings(c,upTo){
+    var t={};c.teams.forEach(function(x){t[x.team]={team:x.team,seed:x.seed,base:x.baseline,w:0,l:0,t:0,b:0,p:0,tot:0}});
+    c.weeks.forEach(function(w){if(w.wk>upTo)return;w.results.forEach(function(r){var s=t[r.team];s[r.r.toLowerCase()]++;s.b+=r.b;s.p+=r.p;s.tot+=r.aces||0})});
+    return Object.keys(t).map(function(k){return t[k]}).sort(function(a,b){return b.p-a.p||b.tot-a.tot});
+  }
+  function card(w,a,b){
+    function side(r,isBye){
+      var win=r.r==='W',cls='mside'+(win?' win':'')+(MINE.test(r.team)?' mine':'');
+      return '<div class="'+cls+'"><span class="nm">'+esc(r.team)+'</span><span class="sc">'+f(r.aces)+'</span><span class="pts'+(r.p>=3?' hot':'')+'">'+r.r+(r.b?' +1':'')+' · '+r.p+'</span></div>';
+    }
+    var meta=function(r){var d=r.aces==null?null:r.aces-r.baseline;return esc(r.team)+': '+r.n+' scores, baseline '+f(r.baseline)+(d==null?'':' (<span class="delta'+(d>0?' up':'')+'">'+(d>0?'+':'')+f(d)+'</span>)')};
+    if(!b) return '<div class="mcard">'+side(a)+'<div class="mside"><span class="nm">Conference average (bye)</span><span class="sc">'+f(w.avg)+'</span><span></span></div><div class="mmeta">'+meta(a)+'</div></div>';
+    return '<div class="mcard">'+side(a)+side(b)+'<div class="mmeta">'+meta(a)+'<br>'+meta(b)+'</div></div>';
+  }
+  function render(){
+    var d=D();
+    if(week==null){body.innerHTML='<p class="empty">No league weeks have been played yet.</p>';return;}
+    var list=sel.value==='all'?d.conferences:[d.conferences[+sel.value]];
+    body.innerHTML=list.map(function(c){
+      var w=c.weeks.filter(function(x){return x.wk===week})[0];
+      if(!w)return '<div class="lg-conf"><h3>'+esc(c.name)+'</h3><p class="empty">Week '+week+' has not been played.</p></div>';
+      var by={},done={},cards=[];w.results.forEach(function(r){by[r.team]=r});
+      w.results.forEach(function(r){if(done[r.team])return;done[r.team]=1;var o=by[r.opp];if(o){done[o.team]=1;cards.push(card(w,r.r==='L'&&o.r==='W'?o:r,r.r==='L'&&o.r==='W'?r:o))}else cards.push(card(w,r,null))});
+      var st=standings(c,week);
+      var rows=st.map(function(s,i){var r=by[s.team],dl=r&&r.aces!=null?r.aces-s.base:null;
+        return '<tr'+(MINE.test(s.team)?' class="mine"':'')+'><td class="rk">'+(i+1)+'</td><td class="team">'+esc(s.team)+'</td><td class="r">'+s.w+'-'+s.l+'-'+s.t+'</td><td class="r">'+s.b+'</td><td class="r aces">'+s.p+'</td><td class="r">'+f(r&&r.aces)+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td><td class="r">'+f(s.base)+'</td><td class="r">'+s.seed+'</td></tr>'}).join('');
+      return '<div class="lg-conf"><h3>'+esc(c.name)+' <small>Week '+week+' · conference average '+f(w.avg)+'</small></h3><div class="matches">'+cards.join('')+'</div>'+
+        '<div class="tbl"><table><thead><tr><th>Pos</th><th>Team</th><th class="r">W-L-T</th><th class="r">+1s</th><th class="r">Points</th><th class="r">Week '+week+' ACES</th><th class="r">vs baseline</th><th class="r">Baseline</th><th class="r">Seed</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    }).join('');
+  }
+  function setDisc(v){disc=v;document.getElementById('lg-trap').setAttribute('aria-pressed',v==='trap');document.getElementById('lg-skeet').setAttribute('aria-pressed',v!=='trap');sel.value='';setup();}
+  document.getElementById('lg-trap').onclick=function(){setDisc('trap')};
+  document.getElementById('lg-skeet').onclick=function(){setDisc('skeet')};
+  wkBox.onclick=function(e){var b=e.target.closest('button[data-wk]');if(!b)return;week=+b.dataset.wk;[].forEach.call(wkBox.children,function(x){x.setAttribute('aria-pressed',x===b)});render();};
+  sel.onchange=render;
+  setup();
+})();
+</script>
+<script>
+(function(){
+  // ---------- ACES math (mirrors aces_score.py) ----------
+  function q(s,p){var n=s.length;if(n===1)return s[0];var pos=(n-1)*p,lo=Math.floor(pos),f=pos-lo;return lo+1>=n?s[n-1]:s[lo]+(s[lo+1]-s[lo])*f;}
+  function aces(scores){var s=scores.slice().sort(function(a,b){return a-b});var q1=q(s,.25),md=q(s,.5),q3=q(s,.75);var w=Math.max(s[0],q1-1.5*(q3-q1));var mx=s[s.length-1];return{median:md,q3:q3,q1:q1,lower_whisker:w,max:mx,min:s[0],aces:md+q3+q1+w+mx,n:s.length};}
+  function fmt(v){return (Math.round(v*1000)/1000).toString();}
+
+  // ---------- copy email ----------
+  document.getElementById('copy-email').onclick=function(){var b=this,t=document.getElementById('email').textContent;
+    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('email'));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected';}
+    try{navigator.clipboard.writeText(t).then(function(){b.textContent='Copied'},sel)}catch(e){sel()}};
+
+  // ---------- calculator ----------
+  var inp=document.getElementById('calc-in');
+  function drawCalc(){
+    var nums=(inp.value.match(/\d+(\.\d+)?/g)||[]).map(Number);
+    var err=document.getElementById('calc-err'),bad=nums.filter(function(x){return x>50});
+    if(!nums.length||bad.length){err.hidden=false;err.textContent=!nums.length?'Enter at least one score from 0 to 50.':'Scores must be out of 50. Remove: '+bad.join(', ');document.getElementById('calc-v').textContent='–';return;}
+    err.hidden=true;var c=aces(nums);
+    document.getElementById('calc-v').textContent=fmt(c.aces);
+    document.getElementById('calc-n').textContent='from '+c.n+' score'+(c.n>1?'s':'')+' · out of 250';
+    var names=[['Median','median'],['Q3','q3'],['Q1','q1'],['Whisker','lower_whisker'],['Max','max']];
+    document.getElementById('calc-comp').innerHTML=names.map(function(p){return '<div><small>'+p[0]+'</small><b>'+fmt(c[p[1]])+'</b></div>'}).join('');
+    var lo=Math.min(20,Math.floor(c.min/5)*5),X=function(v){return 20+(v-lo)/(50-lo)*480;};
+    var g='';
+    for(var t=lo;t<=50;t+=5){g+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="20" y2="86" stroke="var(--line)"/><text x="'+X(t)+'" y="102" text-anchor="middle">'+t+'</text>';}
+    g+='<line x1="'+X(c.lower_whisker)+'" x2="'+X(c.q1)+'" y1="53" y2="53" stroke="var(--ink)" stroke-width="2"/>';
+    g+='<line x1="'+X(c.q3)+'" x2="'+X(c.max)+'" y1="53" y2="53" stroke="var(--ink)" stroke-width="2"/>';
+    g+='<rect x="'+X(c.q1)+'" y="36" width="'+Math.max(1,X(c.q3)-X(c.q1))+'" height="34" fill="var(--orange-soft)" stroke="var(--orange)" stroke-width="2"/>';
+    g+='<line x1="'+X(c.median)+'" x2="'+X(c.median)+'" y1="36" y2="70" stroke="var(--orange)" stroke-width="3"/>';
+    [c.lower_whisker,c.max].forEach(function(v){g+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="44" y2="62" stroke="var(--ink)" stroke-width="2"/>';});
+    nums.forEach(function(v){if(v<c.lower_whisker)g+='<circle cx="'+X(v)+'" cy="53" r="3.5" fill="var(--muted)"/>';});
+    g+='<text class="k" x="'+X(c.median)+'" y="28" text-anchor="middle">median</text>';
+    g+='<text class="k" x="'+X(c.lower_whisker)+'" y="80" text-anchor="middle">whisker</text>';
+    g+='<text class="k" x="'+X(c.max)+'" y="80" text-anchor="end">max</text>';
+    document.getElementById('calc-svg').innerHTML=g;
+  }
+  inp.addEventListener('input',drawCalc);drawCalc();
+
+  // ---------- rankings ----------
+  var D=window.ACES_DATA;
+  var ds=document.getElementById('ds'),st=document.getElementById('st'),qi=document.getElementById('q'),find=document.getElementById('find'),
+      thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),meta=document.getElementById('meta');
+  if(!D||!D.datasets||!D.datasets.length){tbody.innerHTML='<tr><td class="empty">Rankings have not been generated yet. Run rank.py to build rankings.js.</td></tr>';return;}
+  document.getElementById('upd').textContent=D.updated;document.getElementById('min-n').textContent=D.min_scores;
+  var disc='trap',view='teams',shown=100,mineOnly=false,MINE=/aitkin county elite sharpshooters/i;
+  function load(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+  function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function fillDatasets(){
+    var keep=ds.options.length?D.datasets[ds.value].name:load('aces-ds','');
+    ds.innerHTML='';D.datasets.forEach(function(d,i){if(d.discipline!==disc)return;var o=document.createElement('option');o.value=i;o.textContent=d.name;ds.appendChild(o);});
+    for(var i=0;i<ds.options.length;i++){if(ds.options[i].textContent===keep){ds.selectedIndex=i;break;}}
+    document.getElementById('d-skeet').disabled=!D.datasets.some(function(d){return d.discipline==='skeet'});
+  }
+  function fillStates(){var d=D.datasets[ds.value],cur=st.value,set={};d.teams.forEach(function(t){if(t.state)set[t.state]=1});
+    st.innerHTML='<option value="">All states</option>'+Object.keys(set).sort().map(function(s){return '<option>'+s+'</option>'}).join('');st.value=set[cur]?cur:'';}
+  function render(){
+    if(!ds.options.length){meta.textContent='';thead.innerHTML='';tbody.innerHTML='<tr><td class="empty">No '+disc+' results yet.</td></tr>';more.hidden=true;return;}
+    var d=D.datasets[ds.value],rows=view==='teams'?d.teams:d.conferences,s=st.value,qq=qi.value.trim().toLowerCase();
+    var f=rows.filter(function(r){return(!s||r.state===s)&&(!qq||((r.team||'')+' '+r.conference+' '+r.state).toLowerCase().indexOf(qq)>=0)&&(!mineOnly||view!=='teams'||MINE.test(r.team))});
+    meta.textContent=d.note+' · '+d.n_scores.toLocaleString()+' scores · '+rows.length.toLocaleString()+' '+(view==='teams'?'teams':'conferences')+' ranked'+(f.length!==rows.length?' · '+f.length.toLocaleString()+' shown':'');
+    var lo=rows.length?rows[rows.length-1].aces:0,hi=rows.length?rows[0].aces:250;
+    var cols=view==='teams'
+      ?['Rank','Team','State','Conference / event','ACES','Median','Q3','Q1','Whisker','Max','Scores']
+      :['Rank','Conference','State','Teams','ACES','Median','Q3','Q1','Whisker','Max','Scores'];
+    thead.innerHTML='<tr>'+cols.map(function(c,i){return '<th'+(i>=4||(view!=='teams'&&i===3)?' class="r"':'')+'>'+c+'</th>'}).join('')+'</tr>';
+    if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="11">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';more.hidden=true;return;}
+    tbody.innerHTML=f.slice(0,shown).map(function(r){
+      var w=hi>lo?Math.round(6+40*(r.aces-lo)/(hi-lo)):20;
+      var name=view==='teams'?esc(r.team)+(r.source==='SCTP'?'<span class="src">SCTP</span>':''):esc(r.conference);
+      var c3=view==='teams'?'<td>'+esc(r.conference)+'</td>':'<td class="r">'+r.teams+'</td>';
+      return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td>'+c3+
+        '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
+    }).join('');
+    more.hidden=f.length<=shown;more.textContent='Show more ('+(f.length-shown).toLocaleString()+' left)';
+  }
+  function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
+  function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=100;fillDatasets();if(ds.options.length)fillStates();render();}
+  function setView(v){view=v;shown=100;press('v-teams','v-conf',v==='teams');render();}
+  document.getElementById('d-trap').onclick=function(){setDisc('trap')};
+  document.getElementById('d-skeet').onclick=function(){setDisc('skeet')};
+  document.getElementById('v-teams').onclick=function(){setView('teams')};
+  document.getElementById('v-conf').onclick=function(){setView('conf')};
+  find.onclick=function(){mineOnly=!mineOnly;find.setAttribute('aria-pressed',mineOnly);if(mineOnly)setView('teams');else render();};
+  ds.onchange=function(){save('aces-ds',D.datasets[ds.value].name);shown=100;fillStates();render()};
+  st.onchange=qi.oninput=function(){shown=100;render()};
+  more.onclick=function(){shown+=200;render()};
+  setDisc('trap');
+})();
+</script>
