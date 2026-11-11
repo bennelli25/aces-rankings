@@ -419,15 +419,15 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     meta.textContent=d.note+' · '+d.n_scores.toLocaleString()+' scores · '+rows.length.toLocaleString()+' '+(view==='teams'?'teams':'conferences')+' ranked'+(f.length!==rows.length?' · '+f.length.toLocaleString()+' shown':'');
     var lo=rows.length?rows[rows.length-1].aces:0,hi=rows.length?rows[0].aces:250;
     var cols=view==='teams'
-      ?['Rank','Team','State','Conference / event','ACES','Median','Q3','Q1','Whisker','Max','Scores']
-      :['Rank','Conference','State','Teams','ACES','Median','Q3','Q1','Whisker','Max','Scores'];
-    thead.innerHTML='<tr>'+cols.map(function(c,i){return '<th'+(i>=4||(view!=='teams'&&i===3)?' class="r"':'')+'>'+c+'</th>'}).join('')+'</tr>';
-    if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="11">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';more.hidden=true;return;}
+      ?['Rank','Team','State','State rank','Conference / event','ACES','Median','Q3','Q1','Whisker','Max','Scores']
+      :['Rank','Conference','State','State rank','Teams','ACES','Median','Q3','Q1','Whisker','Max','Scores'];
+    thead.innerHTML='<tr>'+cols.map(function(c,i){return '<th'+(i===3||i>=5||(view!=='teams'&&i===4)?' class="r"':'')+'>'+c+'</th>'}).join('')+'</tr>';
+    if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="12">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';more.hidden=true;return;}
     tbody.innerHTML=f.slice(0,shown).map(function(r){
       var w=hi>lo?Math.round(6+40*(r.aces-lo)/(hi-lo)):20;
       var name=view==='teams'?esc(r.team)+(r.source==='SCTP'?'<span class="src">SCTP</span>':''):esc(r.conference);
       var c3=view==='teams'?'<td>'+esc(r.conference)+'</td>':'<td class="r">'+r.teams+'</td>';
-      return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td>'+c3+
+      return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td><td class="r rk">'+(r.state_rank||'–')+'</td>'+c3+
         '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
     }).join('');
     more.hidden=f.length<=shown;more.textContent='Show more ('+(f.length-shown).toLocaleString()+' left)';
