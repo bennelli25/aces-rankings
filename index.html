@@ -395,12 +395,13 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   inp.addEventListener('input',drawCalc);drawCalc();
 
   // ---------- rankings ----------
+  var PAGE_FIRST=20,PAGE_MORE=50; // rows shown at first, rows added per "Show more"
   var D=window.ACES_DATA;
   var ds=document.getElementById('ds'),st=document.getElementById('st'),qi=document.getElementById('q'),find=document.getElementById('find'),
       thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),meta=document.getElementById('meta');
   if(!D||!D.datasets||!D.datasets.length){tbody.innerHTML='<tr><td class="empty">Rankings have not been generated yet. Run rank.py to build rankings.js.</td></tr>';return;}
   document.getElementById('upd').textContent=D.updated;document.getElementById('min-n').textContent=D.min_scores;
-  var disc='trap',view='teams',shown=100,mineOnly=false,MINE=/aitkin county elite sharpshooters/i;
+  var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i;
   function load(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
   function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -430,19 +431,19 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td><td class="r rk">'+(r.state_rank||'–')+'</td>'+c3+
         '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
     }).join('');
-    more.hidden=f.length<=shown;more.textContent='Show more ('+(f.length-shown).toLocaleString()+' left)';
+    more.hidden=f.length<=shown;var left=f.length-shown;more.textContent='Show '+Math.min(PAGE_MORE,left)+' more ('+left.toLocaleString()+' left)';
   }
   function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
-  function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=100;fillDatasets();if(ds.options.length)fillStates();render();}
-  function setView(v){view=v;shown=100;press('v-teams','v-conf',v==='teams');render();}
+  function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
+  function setView(v){view=v;shown=PAGE_FIRST;press('v-teams','v-conf',v==='teams');render();}
   document.getElementById('d-trap').onclick=function(){setDisc('trap')};
   document.getElementById('d-skeet').onclick=function(){setDisc('skeet')};
   document.getElementById('v-teams').onclick=function(){setView('teams')};
   document.getElementById('v-conf').onclick=function(){setView('conf')};
   find.onclick=function(){mineOnly=!mineOnly;find.setAttribute('aria-pressed',mineOnly);if(mineOnly)setView('teams');else render();};
-  ds.onchange=function(){save('aces-ds',D.datasets[ds.value].name);shown=100;fillStates();render()};
-  st.onchange=qi.oninput=function(){shown=100;render()};
-  more.onclick=function(){shown+=200;render()};
+  ds.onchange=function(){save('aces-ds',D.datasets[ds.value].name);shown=PAGE_FIRST;fillStates();render()};
+  st.onchange=qi.oninput=function(){shown=PAGE_FIRST;render()};
+  more.onclick=function(){shown+=PAGE_MORE;render()};
   setDisc('trap');
 })();
 </script>
