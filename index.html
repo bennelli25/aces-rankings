@@ -220,12 +220,13 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 <section id="league">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">MN SCTP virtual league</div>
+      <div class="eyebrow">Virtual league</div>
       <h2>Week by week</h2>
-      <p>Each week, teams in a conference are paired head to head on their ACES Score. A win earns 2 points and a tie 1, and any team that beats its seeding baseline earns +1, win or lose. A team with a bye plays the conference average.</p>
+      <p>Each week, teams in a conference are paired head to head on their ACES Score. A win earns 2 points and a tie 1, and any team that beats its seeding baseline earns +1, win or lose. A team with a bye plays the conference average. Pick <b>MN SCTP</b>, or <b>Nationwide</b> to see the league with every team in the country.</p>
     </div>
     <div class="sim-flag" id="lg-sim" hidden>Simulated season. These weeks are generated from real shooters' scores to show how the league works. Real results replace them once the season starts.</div>
     <div class="controls">
+      <div class="field"><label for="lg-league">League</label><select id="lg-league"></select></div>
       <div class="field"><span class="lbl">Discipline</span>
         <div class="tabs" role="group" aria-label="League discipline"><button id="lg-trap" aria-pressed="true">Trap</button><button id="lg-skeet" aria-pressed="false">Skeet</button></div>
       </div>
@@ -299,25 +300,29 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 <footer><div class="wrap">ACES Score Rankings, created and hosted by the Aitkin County Elite Sharpshooters · Updated <span id="upd">–</span>. Scores come from public league results. The ACES Score is our own measure, not an official league ranking.</div></footer>
 
 <script src="rankings.js?v=20261111091453"></script>
-<script src="league.js?v=20261111091454"></script>
+<script src="league.js?v=20261111095702"></script>
 <script>
 (function(){
-  var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf');
-  if(!L||!L.disciplines){body.innerHTML='<p class="empty">League results have not been generated yet. Run league.py.</p>';return;}
-  var MINE=/aitkin county elite sharpshooters/i,disc='trap',week=null;
+  var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf'),lgSel=document.getElementById('lg-league');
+  if(!L||!L.leagues){body.innerHTML='<p class="empty">League results have not been generated yet. Run league.py.</p>';return;}
+  var MINE=/aitkin county elite sharpshooters/i,disc='trap',week=null,league='mn',SIM_DEFAULT=document.getElementById('lg-sim').textContent;
+  lgSel.innerHTML=Object.keys(L.leagues).map(function(k){return '<option value="'+k+'">'+L.leagues[k].label+'</option>'}).join('');
+  lgSel.onchange=function(){league=lgSel.value;sel.value='';setup();};
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function f(v){return v==null?'–':(Math.round(v*100)/100).toFixed(2)}
-  function D(){return L.disciplines[disc]}
+  function D(){return L.leagues[league].disciplines[disc]}
   function setup(){
-    var d=D();
-    document.getElementById('lg-sim').hidden=d.mode!=='simulated';
+    var d=D(),simEl=document.getElementById('lg-sim'),note=L.leagues[league].note;
+    simEl.hidden=d.mode!=='simulated';
+    simEl.textContent=note?('Simulated nationwide league. '+note+' '+d.conferences.length+' '+disc+' conferences.'):SIM_DEFAULT;
     if(week==null||d.weeks.indexOf(week)<0)week=d.weeks.length?d.weeks[d.weeks.length-1]:null;
     wkBox.innerHTML=d.weeks.map(function(w){return '<button data-wk="'+w+'" aria-pressed="'+(w===week)+'">'+w+'</button>'}).join('')||'<button disabled>–</button>';
     var keep=sel.value,mineIdx=-1;
-    sel.innerHTML='<option value="all">All conferences</option>'+d.conferences.map(function(c,i){
+    sel.innerHTML=(d.conferences.length<=20?'<option value="all">All conferences</option>':'')+d.conferences.map(function(c,i){
       if(c.teams.some(function(t){return MINE.test(t.team)}))mineIdx=i;
-      return '<option value="'+i+'">'+esc(c.name)+'</option>'}).join('');
-    sel.value=(keep&&sel.querySelector('option[value="'+keep+'"]'))?keep:(mineIdx>=0?String(mineIdx):'all');
+      var b=c.teams.map(function(t){return t.baseline}),rng=Math.min.apply(null,b).toFixed(1)+'–'+Math.max.apply(null,b).toFixed(1);
+      return '<option value="'+i+'">'+esc(c.name)+' · ACES '+rng+'</option>'}).join('');
+    sel.value=(keep&&sel.querySelector('option[value="'+keep+'"]'))?keep:(mineIdx>=0?String(mineIdx):sel.options[0].value);
     render();
   }
   function standings(c,upTo){
