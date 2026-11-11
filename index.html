@@ -117,6 +117,8 @@ tr.mine td.team{font-weight:600}
 .src{font-family:var(--f-display);font-size:.74rem;letter-spacing:.08em;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--muted);margin-left:6px}
 .bar{display:inline-block;height:6px;border-radius:3px;background:var(--orange);vertical-align:middle;margin-left:8px;opacity:.75}
 .pager{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+#results .wrap{max-width:1400px}
+td.conf{white-space:normal;min-width:150px;max-width:230px}
 .more{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:.95rem;padding:9px 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
 .empty{padding:24px;color:var(--muted)}
 .h2h{margin-top:22px;color:var(--muted);font-size:.95rem}
@@ -426,9 +428,9 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     thead.innerHTML='<tr>'+cols.map(function(c,i){return '<th'+(i===3||i>=5||(view!=='teams'&&i===4)?' class="r"':'')+'>'+c+'</th>'}).join('')+'</tr>';
     if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="12">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';pager.hidden=true;return;}
     tbody.innerHTML=f.slice(0,shown).map(function(r){
-      var w=hi>lo?Math.round(6+40*(r.aces-lo)/(hi-lo)):20;
+      var w=hi>lo?Math.round(6+28*(r.aces-lo)/(hi-lo)):16;
       var name=view==='teams'?esc(r.team)+(r.source==='SCTP'?'<span class="src">SCTP</span>':''):esc(r.conference);
-      var c3=view==='teams'?'<td>'+esc(r.conference)+'</td>':'<td class="r">'+r.teams+'</td>';
+      var c3=view==='teams'?'<td class="conf">'+esc(r.conference)+'</td>':'<td class="r">'+r.teams+'</td>';
       return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td><td class="r rk">'+(r.state_rank||'–')+'</td>'+c3+
         '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
     }).join('');
