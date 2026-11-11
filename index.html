@@ -116,7 +116,8 @@ tr.mine td.team{font-weight:600}
 .rk{font-family:var(--f-display);font-weight:800;font-size:1.1rem}
 .src{font-family:var(--f-display);font-size:.74rem;letter-spacing:.08em;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--muted);margin-left:6px}
 .bar{display:inline-block;height:6px;border-radius:3px;background:var(--orange);vertical-align:middle;margin-left:8px;opacity:.75}
-.more{margin-top:14px;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:.95rem;padding:9px 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
+.pager{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.more{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:.95rem;padding:9px 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
 .empty{padding:24px;color:var(--muted)}
 .h2h{margin-top:22px;color:var(--muted);font-size:.95rem}
 
@@ -209,7 +210,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     </div>
     <div class="meta" id="meta"></div>
     <div class="tbl"><table id="tbl"><thead></thead><tbody></tbody></table></div>
-    <button class="more" id="more" hidden>Show more</button>
+    <div class="pager" id="pager" hidden><button class="more" id="more" type="button">Show more</button><button class="more" id="show-all" type="button">Show all</button></div>
     <p class="h2h">Sporting clays and 5-stand courses differ from field to field, so those events are compared head to head on the same course rather than by ACES Score.</p>
   </div>
 </section>
@@ -398,7 +399,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   var PAGE_FIRST=20,PAGE_MORE=50; // rows shown at first, rows added per "Show more"
   var D=window.ACES_DATA;
   var ds=document.getElementById('ds'),st=document.getElementById('st'),qi=document.getElementById('q'),find=document.getElementById('find'),
-      thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),meta=document.getElementById('meta');
+      thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),showAll=document.getElementById('show-all'),pager=document.getElementById('pager'),meta=document.getElementById('meta');
   if(!D||!D.datasets||!D.datasets.length){tbody.innerHTML='<tr><td class="empty">Rankings have not been generated yet. Run rank.py to build rankings.js.</td></tr>';return;}
   document.getElementById('upd').textContent=D.updated;document.getElementById('min-n').textContent=D.min_scores;
   var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i;
@@ -414,7 +415,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   function fillStates(){var d=D.datasets[ds.value],cur=st.value,set={};d.teams.forEach(function(t){if(t.state)set[t.state]=1});
     st.innerHTML='<option value="">All states</option>'+Object.keys(set).sort().map(function(s){return '<option>'+s+'</option>'}).join('');st.value=set[cur]?cur:'';}
   function render(){
-    if(!ds.options.length){meta.textContent='';thead.innerHTML='';tbody.innerHTML='<tr><td class="empty">No '+disc+' results yet.</td></tr>';more.hidden=true;return;}
+    if(!ds.options.length){meta.textContent='';thead.innerHTML='';tbody.innerHTML='<tr><td class="empty">No '+disc+' results yet.</td></tr>';pager.hidden=true;return;}
     var d=D.datasets[ds.value],rows=view==='teams'?d.teams:d.conferences,s=st.value,qq=qi.value.trim().toLowerCase();
     var f=rows.filter(function(r){return(!s||r.state===s)&&(!qq||((r.team||'')+' '+r.conference+' '+r.state).toLowerCase().indexOf(qq)>=0)&&(!mineOnly||view!=='teams'||MINE.test(r.team))});
     meta.textContent=d.note+' · '+d.n_scores.toLocaleString()+' scores · '+rows.length.toLocaleString()+' '+(view==='teams'?'teams':'conferences')+' ranked'+(f.length!==rows.length?' · '+f.length.toLocaleString()+' shown':'');
@@ -423,7 +424,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       ?['Rank','Team','State','State rank','Conference / event','ACES','Median','Q3','Q1','Whisker','Max','Scores']
       :['Rank','Conference','State','State rank','Teams','ACES','Median','Q3','Q1','Whisker','Max','Scores'];
     thead.innerHTML='<tr>'+cols.map(function(c,i){return '<th'+(i===3||i>=5||(view!=='teams'&&i===4)?' class="r"':'')+'>'+c+'</th>'}).join('')+'</tr>';
-    if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="12">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';more.hidden=true;return;}
+    if(!f.length){tbody.innerHTML='<tr><td class="empty" colspan="12">'+(mineOnly?'ACES is not ranked in these results.':(view!=='teams'&&!rows.length?'These results have no conferences. Switch to Teams.':'Nothing matches that filter.'))+'</td></tr>';pager.hidden=true;return;}
     tbody.innerHTML=f.slice(0,shown).map(function(r){
       var w=hi>lo?Math.round(6+40*(r.aces-lo)/(hi-lo)):20;
       var name=view==='teams'?esc(r.team)+(r.source==='SCTP'?'<span class="src">SCTP</span>':''):esc(r.conference);
@@ -431,7 +432,8 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       return '<tr'+(view==='teams'&&MINE.test(r.team)?' class="mine"':'')+'><td class="rk">'+r.rank+'</td><td class="team">'+name+'</td><td>'+esc(r.state||'–')+'</td><td class="r rk">'+(r.state_rank||'–')+'</td>'+c3+
         '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
     }).join('');
-    more.hidden=f.length<=shown;var left=f.length-shown;more.textContent='Show '+Math.min(PAGE_MORE,left)+' more ('+left.toLocaleString()+' left)';
+    pager.hidden=f.length<=shown;var left=f.length-shown;more.textContent='Show '+Math.min(PAGE_MORE,left)+' more ('+left.toLocaleString()+' left)';
+    showAll.textContent='Show all '+f.length.toLocaleString();showAll.hidden=left<=PAGE_MORE;
   }
   function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
   function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
@@ -444,6 +446,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   ds.onchange=function(){save('aces-ds',D.datasets[ds.value].name);shown=PAGE_FIRST;fillStates();render()};
   st.onchange=qi.oninput=function(){shown=PAGE_FIRST;render()};
   more.onclick=function(){shown+=PAGE_MORE;render()};
+  showAll.onclick=function(){shown=Infinity;render()};
   setDisc('trap');
 })();
 </script>
