@@ -145,6 +145,8 @@ td.conf{white-space:normal;min-width:150px;max-width:230px}
 .delta.up{color:var(--orange);font-weight:600}
 .legend{color:var(--muted);font-size:.88rem;margin-top:10px}
 #lg-team{width:320px}
+.sbtag{display:inline-block;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#b3261e;color:#fff;vertical-align:middle;white-space:nowrap}
+.sbnote{color:#e0605a}
 .tcard .thead .x{margin-left:0}
 .lg-msg{color:var(--muted);font-size:.9rem;align-self:center}
 .tcard{margin-top:12px;display:grid;gap:10px;justify-items:start}
@@ -253,7 +255,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     </div>
     <div id="lg-teamcard"></div>
     <div id="lg-body"></div>
-    <p class="legend">W win (2 pts) · T tie (1) · L loss (0) · <b>+1</b> beat the team's baseline · Baseline = ACES Score from the seeding weeks · Scores = 50-target scores posted that week</p>
+    <p class="legend">W win (2 pts) · T tie (1) · L loss (0) · <b>+1</b> beat the team's baseline · Baseline = ACES Score from the seeding weeks · Scores = 50-target scores posted that week<br><b>Sandbag check:</b> after two scored weeks, a team averaging more than 15 ACES points above its seeding score in trap (25 in skeet), about 3 targets per shooter better, is flagged. Honest teams cross that line less than 1% of the time. A flagged team gives back its +1s, earns no more, and is not eligible for the conference title. League officials can clear a flag (for example, a strong new shooter joined).<br><b>Balanced schedules:</b> in conferences too big to play everyone, opponents are picked so every team's average opponent seed is near the middle of the conference. No seed gets an easier schedule.</p>
   </div>
 </section>
 
@@ -319,7 +321,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 <footer><div class="wrap">ACES Score Rankings, created and hosted by the Aitkin County Elite Sharpshooters · Updated <span id="upd">–</span>. Scores come from public league results. The ACES Score is our own measure, not an official league ranking.</div></footer>
 
 <script src="rankings.js?v=20261111101505" charset="utf-8"></script>
-<script src="league.js?v=20261111101505" charset="utf-8"></script>
+<script src="league.js?v=20261112092552" charset="utf-8"></script>
 <script>
 (function(){
   var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf'),lgSel=document.getElementById('lg-league');
@@ -335,7 +337,9 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   function setup(){
     var d=D(),simEl=document.getElementById('lg-sim'),note=L.leagues[league].note;
     simEl.hidden=d.mode!=='simulated';
-    simEl.textContent=note?('Simulated nationwide league. '+note+' '+d.conferences.length+' '+disc+' conferences.'):SIM_DEFAULT;
+    simEl.textContent=(note?('Simulated nationwide league. '+note+' '+d.conferences.length+' '+disc+' conferences.'):SIM_DEFAULT)+
+      (d.demo_sandbagger?' To show the sandbag check, '+d.demo_sandbagger+' is set up to shoot low in the seeding weeks.':'')+
+      (d.flagged?' Teams flagged for sandbagging: '+d.flagged+'.':'');
     if(week==null||d.weeks.indexOf(week)<0)week=d.weeks.length?d.weeks[d.weeks.length-1]:null;
     wkBox.innerHTML=d.weeks.map(function(w){return '<button data-wk="'+w+'" aria-pressed="'+(w===week)+'">'+w+'</button>'}).join('')||'<button disabled>–</button>';
     teamConf={};d.conferences.forEach(function(c,i){c.teams.forEach(function(t){teamConf[t.team]=i})});
@@ -352,15 +356,18 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   }
   function standings(c,upTo){
     var t={};c.teams.forEach(function(x){t[x.team]={team:x.team,seed:x.seed,base:x.baseline,w:0,l:0,t:0,b:0,p:0,tot:0}});
+    c.teams.forEach(function(x){if(x.flag_wk&&x.flag_wk<=upTo)t[x.team].flag=x.flag_wk});
     c.weeks.forEach(function(w){if(w.wk>upTo)return;w.results.forEach(function(r){var s=t[r.team];s[r.r.toLowerCase()]++;s.b+=r.b;s.p+=r.p;s.tot+=r.aces||0})});
-    return Object.keys(t).map(function(k){return t[k]}).sort(function(a,b){return b.p-a.p||b.tot-a.tot});
+    return Object.keys(t).map(function(k){var s=t[k];if(s.flag)s.b=0;return s}).sort(function(a,b){return (a.flag?1:0)-(b.flag?1:0)||b.p-a.p||b.tot-a.tot});
   }
+  var FLAG='<span class="sbtag" title="Sandbag flag: shooting far above its seeding score. +1 bonuses removed; not eligible for the conference title.">Sandbag flag</span>';
   function card(w,a,b){
     function side(r,isBye){
       var win=r.r==='W',cls='mside'+(win?' win':'')+(hl(r.team)?' mine':'');
-      return '<div class="'+cls+'"><span class="nm">'+esc(r.team)+'</span><span class="sc">'+f(r.aces)+'</span><span class="pts'+(r.p>=3?' hot':'')+'">'+r.r+(r.b?' +1':'')+' · '+r.p+'</span></div>';
+      return '<div class="'+cls+'"><span class="nm">'+esc(r.team)+'</span><span class="sc">'+f(r.aces)+'</span><span class="pts'+(r.p>=3?' hot':'')+'">'+r.r+(r.b?' +1':'')+(r.pen?' '+r.pen:'')+' · '+r.p+'</span></div>';
     }
-    var meta=function(r){var d=r.aces==null?null:r.aces-r.baseline;return esc(r.team)+': '+r.n+' scores, baseline '+f(r.baseline)+(d==null?'':' (<span class="delta'+(d>0?' up':'')+'">'+(d>0?'+':'')+f(d)+'</span>)')};
+    var meta=function(r){var d=r.aces==null?null:r.aces-r.baseline;return esc(r.team)+': '+r.n+' scores, baseline '+f(r.baseline)+(d==null?'':' (<span class="delta'+(d>0?' up':'')+'">'+(d>0?'+':'')+f(d)+'</span>)')+
+      (r.gap!=null?'<br><span class="sbnote">Sandbag flag: averaging '+f(r.gap)+' above its seeding score (line '+f(D().sandbag_line)+'). '+(r.pen?'Gives back its '+(-r.pen)+' +1 point'+(r.pen<-1?'s':'')+'; ':'')+'no more +1s, not eligible for the conference title.</span>':'')};
     if(!b) return '<div class="mcard">'+side(a)+'<div class="mside"><span class="nm">Conference average (bye)</span><span class="sc">'+f(w.avg)+'</span><span></span></div><div class="mmeta">'+meta(a)+'</div></div>';
     return '<div class="mcard">'+side(a)+side(b)+'<div class="mmeta">'+meta(a)+'<br>'+meta(b)+'</div></div>';
   }
@@ -371,8 +378,8 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     var rows=c.weeks.map(function(w){
       var r=w.results.filter(function(x){return x.team===pick})[0];if(!r)return '';
       var o=r.opp?w.results.filter(function(x){return x.team===r.opp})[0]:null,dl=r.aces==null?null:r.aces-r.baseline;
-      return '<tr data-wk="'+w.wk+'"'+(w.wk===week?' class="cur"':'')+'><td class="rk">'+w.wk+'</td><td class="team">'+(o?esc(o.team):'Conference average (bye)')+'</td><td class="r aces">'+f(r.aces)+'</td><td class="r">'+f(o?o.aces:w.avg)+'</td><td class="r">'+r.r+(r.b?' +1':'')+'</td><td class="r">'+r.p+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td></tr>'}).join('');
-    tCard.innerHTML='<div class="tcard"><div class="thead"><h3>'+esc(pick)+': schedule &amp; results</h3><button class="x" type="button" id="lg-clear">Clear</button></div>'+
+      return '<tr data-wk="'+w.wk+'"'+(w.wk===week?' class="cur"':'')+'><td class="rk">'+w.wk+'</td><td class="team">'+(o?esc(o.team):'Conference average (bye)')+'</td><td class="r aces">'+f(r.aces)+'</td><td class="r">'+f(o?o.aces:w.avg)+'</td><td class="r">'+r.r+(r.b?' +1':'')+(r.pen?' '+r.pen:'')+'</td><td class="r">'+r.p+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td></tr>'}).join('');
+    tCard.innerHTML='<div class="tcard"><div class="thead"><h3>'+esc(pick)+': schedule &amp; results</h3>'+(me.flag?FLAG:'')+'<button class="x" type="button" id="lg-clear">Clear</button></div>'+
       '<p class="sub">'+esc(c.name)+' · seed '+tm.seed+' · baseline '+f(tm.baseline)+' · through week '+week+': '+me.w+'-'+me.l+'-'+me.t+', '+me.p+' pts, '+pos+' of '+st.length+' in the conference. Click a week to see that week\'s matchups.</p>'+
       '<div class="tbl"><table><thead><tr><th>Week</th><th>Opponent</th><th class="r">Their ACES</th><th class="r">Opp. ACES</th><th class="r">Result</th><th class="r">Points</th><th class="r">vs baseline</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
@@ -407,7 +414,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       w.results.forEach(function(r){if(done[r.team])return;done[r.team]=1;var o=by[r.opp];if(o){done[o.team]=1;cards.push(card(w,r.r==='L'&&o.r==='W'?o:r,r.r==='L'&&o.r==='W'?r:o))}else cards.push(card(w,r,null))});
       var st=standings(c,week);
       var rows=st.map(function(s,i){var r=by[s.team],dl=r&&r.aces!=null?r.aces-s.base:null;
-        return '<tr'+(hl(s.team)?' class="mine"':'')+'><td class="rk">'+(i+1)+'</td><td class="team">'+esc(s.team)+'</td><td class="r">'+s.w+'-'+s.l+'-'+s.t+'</td><td class="r">'+s.b+'</td><td class="r aces">'+s.p+'</td><td class="r">'+f(r&&r.aces)+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td><td class="r">'+f(s.base)+'</td><td class="r">'+s.seed+'</td></tr>'}).join('');
+        return '<tr'+(hl(s.team)?' class="mine"':'')+'><td class="rk">'+(i+1)+'</td><td class="team">'+esc(s.team)+(s.flag?' '+FLAG:'')+'</td><td class="r">'+s.w+'-'+s.l+'-'+s.t+'</td><td class="r">'+s.b+'</td><td class="r aces">'+s.p+'</td><td class="r">'+f(r&&r.aces)+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td><td class="r">'+f(s.base)+'</td><td class="r">'+s.seed+'</td></tr>'}).join('');
       return '<div class="lg-conf"><h3>'+esc(c.name)+' <small>Week '+week+' · conference average '+f(w.avg)+'</small></h3><div class="matches">'+cards.join('')+'</div>'+
         '<div class="tbl"><table><thead><tr><th>Pos</th><th>Team</th><th class="r">W-L-T</th><th class="r">+1s</th><th class="r">Points</th><th class="r">Week '+week+' ACES</th><th class="r">vs baseline</th><th class="r">Baseline</th><th class="r">Seed</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
     }).join('');
