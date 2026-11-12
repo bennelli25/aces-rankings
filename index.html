@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ACES Score Rankings</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Whole-team rankings for youth trap and skeet teams using the ACES Score. Created and hosted by the Aitkin County Elite Sharpshooters.">
+<meta name="description" content="Whole-team rankings for youth trap, skeet, 5-stand and sporting clays teams using the ACES Score. Created and hosted by the Aitkin County Elite Sharpshooters.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -193,7 +193,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 <div class="hero" id="top">
   <div class="wrap">
     <div>
-      <div class="eyebrow">Youth trap and skeet · Whole-team rankings</div>
+      <div class="eyebrow">Youth clay target · Whole-team rankings</div>
       <h1><span>ACES</span> Score Rankings</h1>
       <p>The ACES Score ranks clay target teams on how the whole team shoots, not just the top few shooters. Rankings cover the USA High School Clay Target League and SCTP.</p>
       <div class="cta">
@@ -214,12 +214,12 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     <div class="sec-head">
       <div class="eyebrow">Rankings</div>
       <h2>Team rankings by ACES Score</h2>
-      <p>Trap and skeet teams from the High School Clay Target League and SCTP, ranked on the whole team using the ACES Score. Teams need at least <span id="min-n">8</span> scores to be ranked.</p>
+      <p>Trap, skeet, 5-stand and sporting clays teams from the High School Clay Target League and SCTP, ranked on the whole team using the ACES Score. Teams need at least <span id="min-n">8</span> scores to be ranked. Every discipline is on a 50-target scale; SCTP sporting clays rounds of 100 are halved.</p>
       <p><b>MN SCTP</b> seeds Minnesota SCTP teams into conferences of 5 to 7 the way the proposed virtual league would; switch to Conferences to see them. Until teams sign up for the season, the MN SCTP teams shown are simulated stand-ins. <b>MN Combined</b> ranks Minnesota SCTP and High School League teams together.</p>
     </div>
     <div class="controls">
       <div class="field"><span class="lbl">Discipline</span>
-        <div class="tabs" role="group" aria-label="Discipline"><button id="d-trap" aria-pressed="true">Trap</button><button id="d-skeet" aria-pressed="false">Skeet</button></div>
+        <div class="tabs" role="group" aria-label="Discipline"><button id="d-trap" data-disc="trap" aria-pressed="true">Trap</button><button id="d-skeet" data-disc="skeet" aria-pressed="false">Skeet</button><button id="d-5stand" data-disc="5stand" aria-pressed="false">5-Stand</button><button id="d-sporting" data-disc="sporting" aria-pressed="false">Sporting</button></div>
       </div>
       <div class="field"><label for="ds">Results</label><select id="ds"></select></div>
       <div class="field"><span class="lbl">View</span>
@@ -321,8 +321,8 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 </main>
 <footer><div class="wrap">ACES Score Rankings, created and hosted by the Aitkin County Elite Sharpshooters · Updated <span id="upd">–</span>. Scores come from public league results. The ACES Score is our own measure, not an official league ranking.</div></footer>
 
-<script src="rankings.js?v=20261111101505" charset="utf-8"></script>
-<script src="league.js?v=20261112093241" charset="utf-8"></script>
+<script src="rankings.js?v=20261112102726" charset="utf-8"></script>
+<script src="league.js?v=20261112102701" charset="utf-8"></script>
 <script>
 (function(){
   var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf'),lgSel=document.getElementById('lg-league');
@@ -475,7 +475,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),showAll=document.getElementById('show-all'),pager=document.getElementById('pager'),meta=document.getElementById('meta');
   if(!D||!D.datasets||!D.datasets.length){tbody.innerHTML='<tr><td class="empty">Rankings have not been generated yet. Run rank.py to build rankings.js.</td></tr>';return;}
   document.getElementById('upd').textContent=D.updated;document.getElementById('min-n').textContent=D.min_scores;
-  var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i;
+  var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i,DISCS=['trap','skeet','5stand','sporting'];
   function load(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
   function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -483,7 +483,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     var keep=ds.options.length?D.datasets[ds.value].name:load('aces-ds','');
     ds.innerHTML='';D.datasets.forEach(function(d,i){if(d.discipline!==disc)return;var o=document.createElement('option');o.value=i;o.textContent=d.name;ds.appendChild(o);});
     for(var i=0;i<ds.options.length;i++){if(ds.options[i].textContent===keep){ds.selectedIndex=i;break;}}
-    document.getElementById('d-skeet').disabled=!D.datasets.some(function(d){return d.discipline==='skeet'});
+    DISCS.forEach(function(k){document.getElementById('d-'+k).disabled=!D.datasets.some(function(d){return d.discipline===k})});
   }
   function fillStates(){var d=D.datasets[ds.value],cur=st.value,set={};d.teams.forEach(function(t){if(t.state)set[t.state]=1});
     st.innerHTML='<option value="">All states</option>'+Object.keys(set).sort().map(function(s){return '<option>'+s+'</option>'}).join('');st.value=set[cur]?cur:'';}
@@ -509,10 +509,9 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     more.hidden=left<=PAGE_MORE;showAll.textContent='Show all '+f.length.toLocaleString();
   }
   function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
-  function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
+  function setDisc(v){disc=v;DISCS.forEach(function(k){document.getElementById('d-'+k).setAttribute('aria-pressed',k===v)});shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
   function setView(v){view=v;shown=PAGE_FIRST;press('v-teams','v-conf',v==='teams');render();}
-  document.getElementById('d-trap').onclick=function(){setDisc('trap')};
-  document.getElementById('d-skeet').onclick=function(){setDisc('skeet')};
+  DISCS.forEach(function(k){document.getElementById('d-'+k).onclick=function(){setDisc(k)}});
   document.getElementById('v-teams').onclick=function(){setView('teams')};
   document.getElementById('v-conf').onclick=function(){setView('conf')};
   find.onclick=function(){mineOnly=!mineOnly;find.setAttribute('aria-pressed',mineOnly);if(mineOnly)setView('teams');else render();};
