@@ -143,6 +143,14 @@ td.conf{white-space:normal;min-width:150px;max-width:230px}
 .mmeta{font-size:.82rem;color:var(--muted)}
 .delta.up{color:var(--orange);font-weight:600}
 .legend{color:var(--muted);font-size:.88rem;margin-top:10px}
+#lg-team{width:280px}
+.lg-msg{color:var(--muted);font-size:.9rem;align-self:center}
+.tcard{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:6px;padding:14px 16px;margin-top:8px;display:grid;gap:10px}
+.tcard h3{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0}
+.tcard h3 small{font-family:var(--f-body);text-transform:none;font-weight:400;font-size:.9rem;color:var(--muted)}
+.tcard tr[data-wk]{cursor:pointer}
+.tcard tr.cur td{background:var(--hl)}
+.tcard .x{font:inherit;font-size:.85rem;background:none;border:1px solid var(--line);border-radius:4px;padding:2px 8px;color:var(--muted);cursor:pointer;margin-left:auto}
 
 /* contact */
 .contact{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
@@ -234,7 +242,10 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       </div>
       <div class="field"><span class="lbl">Week</span><div class="tabs" role="group" aria-label="Week" id="lg-weeks"></div></div>
       <div class="field"><label for="lg-conf">Conference</label><select id="lg-conf"></select></div>
+      <div class="field"><label for="lg-team">Team lookup</label><input type="search" id="lg-team" list="lg-teams" placeholder="Type a team name" autocomplete="off"><datalist id="lg-teams"></datalist></div>
+      <span class="lg-msg" id="lg-msg" aria-live="polite"></span>
     </div>
+    <div id="lg-teamcard"></div>
     <div id="lg-body"></div>
     <p class="legend">W win (2 pts) · T tie (1) · L loss (0) · <b>+1</b> beat the team's baseline · Baseline = ACES Score from the seeding weeks · Scores = 50-target scores posted that week</p>
   </div>
@@ -308,6 +319,8 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   var L=window.ACES_LEAGUE,body=document.getElementById('lg-body'),wkBox=document.getElementById('lg-weeks'),sel=document.getElementById('lg-conf'),lgSel=document.getElementById('lg-league');
   if(!L||!L.leagues){body.innerHTML='<p class="empty">League results have not been generated yet. Run league.py.</p>';return;}
   var MINE=/aitkin county elite sharpshooters/i,disc='trap',week=null,league='mn',SIM_DEFAULT=document.getElementById('lg-sim').textContent;
+  var tIn=document.getElementById('lg-team'),tList=document.getElementById('lg-teams'),tMsg=document.getElementById('lg-msg'),tCard=document.getElementById('lg-teamcard'),pick=null,teamConf={},teamNames=[];
+  function hl(n){return pick?n===pick:MINE.test(n)}
   lgSel.innerHTML=Object.keys(L.leagues).map(function(k){return '<option value="'+k+'">'+L.leagues[k].label+'</option>'}).join('');
   lgSel.onchange=function(){league=lgSel.value;sel.value='';setup();};
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -319,7 +332,11 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     simEl.textContent=note?('Simulated nationwide league. '+note+' '+d.conferences.length+' '+disc+' conferences.'):SIM_DEFAULT;
     if(week==null||d.weeks.indexOf(week)<0)week=d.weeks.length?d.weeks[d.weeks.length-1]:null;
     wkBox.innerHTML=d.weeks.map(function(w){return '<button data-wk="'+w+'" aria-pressed="'+(w===week)+'">'+w+'</button>'}).join('')||'<button disabled>–</button>';
-    var keep=sel.value,mineIdx=-1;
+    teamConf={};d.conferences.forEach(function(c,i){c.teams.forEach(function(t){teamConf[t.team]=i})});
+    teamNames=Object.keys(teamConf).sort(function(a,b){return a.localeCompare(b)});
+    tList.innerHTML=teamNames.map(function(n){return '<option value="'+esc(n)+'">'}).join('');
+    if(pick&&!(pick in teamConf)){pick=null;tIn.value='';}
+    var keep=pick?String(teamConf[pick]):sel.value,mineIdx=-1;
     sel.innerHTML=(d.conferences.length<=20?'<option value="all">All conferences</option>':'')+d.conferences.map(function(c,i){
       if(c.teams.some(function(t){return MINE.test(t.team)}))mineIdx=i;
       var b=c.teams.map(function(t){return t.baseline}),rng=Math.min.apply(null,b).toFixed(1)+'–'+Math.max.apply(null,b).toFixed(1);
@@ -334,15 +351,46 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   }
   function card(w,a,b){
     function side(r,isBye){
-      var win=r.r==='W',cls='mside'+(win?' win':'')+(MINE.test(r.team)?' mine':'');
+      var win=r.r==='W',cls='mside'+(win?' win':'')+(hl(r.team)?' mine':'');
       return '<div class="'+cls+'"><span class="nm">'+esc(r.team)+'</span><span class="sc">'+f(r.aces)+'</span><span class="pts'+(r.p>=3?' hot':'')+'">'+r.r+(r.b?' +1':'')+' · '+r.p+'</span></div>';
     }
     var meta=function(r){var d=r.aces==null?null:r.aces-r.baseline;return esc(r.team)+': '+r.n+' scores, baseline '+f(r.baseline)+(d==null?'':' (<span class="delta'+(d>0?' up':'')+'">'+(d>0?'+':'')+f(d)+'</span>)')};
     if(!b) return '<div class="mcard">'+side(a)+'<div class="mside"><span class="nm">Conference average (bye)</span><span class="sc">'+f(w.avg)+'</span><span></span></div><div class="mmeta">'+meta(a)+'</div></div>';
     return '<div class="mcard">'+side(a)+side(b)+'<div class="mmeta">'+meta(a)+'<br>'+meta(b)+'</div></div>';
   }
+  function teamCard(){
+    if(!pick||week==null){tCard.innerHTML='';return;}
+    var c=D().conferences[teamConf[pick]],tm=c.teams.filter(function(t){return t.team===pick})[0];
+    var st=standings(c,week),pos=0;st.forEach(function(s,i){if(s.team===pick)pos=i+1});var me=st[pos-1];
+    var rows=c.weeks.map(function(w){
+      var r=w.results.filter(function(x){return x.team===pick})[0];if(!r)return '';
+      var o=r.opp?w.results.filter(function(x){return x.team===r.opp})[0]:null,dl=r.aces==null?null:r.aces-r.baseline;
+      return '<tr data-wk="'+w.wk+'"'+(w.wk===week?' class="cur"':'')+'><td class="rk">'+w.wk+'</td><td class="team">'+(o?esc(o.team):'Conference average (bye)')+'</td><td class="r aces">'+f(r.aces)+'</td><td class="r">'+f(o?o.aces:w.avg)+'</td><td class="r">'+r.r+(r.b?' +1':'')+'</td><td class="r">'+r.p+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td></tr>'}).join('');
+    tCard.innerHTML='<div class="tcard"><h3>'+esc(pick)+' <small>'+esc(c.name)+' · seed '+tm.seed+' · baseline '+f(tm.baseline)+' · through week '+week+': '+me.w+'-'+me.l+'-'+me.t+', '+me.p+' pts, '+pos+' of '+st.length+'</small><button class="x" type="button" id="lg-clear">Clear</button></h3>'+
+      '<div class="tbl"><table><thead><tr><th>Week</th><th>Opponent</th><th class="r">Team ACES</th><th class="r">Opp. ACES</th><th class="r">Result</th><th class="r">Points</th><th class="r">vs baseline</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
+  function findTeam(v,loose){
+    v=v.trim().toLowerCase();if(!v)return null;
+    var exact=teamNames.filter(function(n){return n.toLowerCase()===v});if(exact.length)return exact[0];
+    var part=teamNames.filter(function(n){return n.toLowerCase().indexOf(v)>=0});
+    return part.length===1||(loose&&part.length)?part[0]:(loose?false:null);
+  }
+  function choose(n){
+    pick=n;tIn.value=n;tMsg.textContent='';sel.value=String(teamConf[n]);render();
+    tCard.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function clearPick(){pick=null;tIn.value='';tMsg.textContent='';render();}
+  tIn.addEventListener('input',function(){if(!tIn.value.trim()){if(pick)clearPick();return;}var n=findTeam(tIn.value,false);if(n&&tIn.value.trim().toLowerCase()===n.toLowerCase())choose(n);});
+  tIn.addEventListener('keydown',function(e){if(e.key!=='Enter')return;e.preventDefault();var n=findTeam(tIn.value,true);if(n)choose(n);else if(n===false)tMsg.textContent='No team matches "'+tIn.value.trim()+'" in this league.';});
+  tIn.addEventListener('change',function(){var n=findTeam(tIn.value,false);if(n)choose(n);});
+  tCard.addEventListener('click',function(e){
+    if(e.target.id==='lg-clear'){clearPick();return;}
+    var tr=e.target.closest('tr[data-wk]');if(!tr)return;week=+tr.dataset.wk;
+    [].forEach.call(wkBox.children,function(x){x.setAttribute('aria-pressed',+x.dataset.wk===week)});render();
+  });
   function render(){
     var d=D();
+    teamCard();
     if(week==null){body.innerHTML='<p class="empty">No league weeks have been played yet.</p>';return;}
     var list=sel.value==='all'?d.conferences:[d.conferences[+sel.value]];
     body.innerHTML=list.map(function(c){
@@ -352,7 +400,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       w.results.forEach(function(r){if(done[r.team])return;done[r.team]=1;var o=by[r.opp];if(o){done[o.team]=1;cards.push(card(w,r.r==='L'&&o.r==='W'?o:r,r.r==='L'&&o.r==='W'?r:o))}else cards.push(card(w,r,null))});
       var st=standings(c,week);
       var rows=st.map(function(s,i){var r=by[s.team],dl=r&&r.aces!=null?r.aces-s.base:null;
-        return '<tr'+(MINE.test(s.team)?' class="mine"':'')+'><td class="rk">'+(i+1)+'</td><td class="team">'+esc(s.team)+'</td><td class="r">'+s.w+'-'+s.l+'-'+s.t+'</td><td class="r">'+s.b+'</td><td class="r aces">'+s.p+'</td><td class="r">'+f(r&&r.aces)+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td><td class="r">'+f(s.base)+'</td><td class="r">'+s.seed+'</td></tr>'}).join('');
+        return '<tr'+(hl(s.team)?' class="mine"':'')+'><td class="rk">'+(i+1)+'</td><td class="team">'+esc(s.team)+'</td><td class="r">'+s.w+'-'+s.l+'-'+s.t+'</td><td class="r">'+s.b+'</td><td class="r aces">'+s.p+'</td><td class="r">'+f(r&&r.aces)+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td><td class="r">'+f(s.base)+'</td><td class="r">'+s.seed+'</td></tr>'}).join('');
       return '<div class="lg-conf"><h3>'+esc(c.name)+' <small>Week '+week+' · conference average '+f(w.avg)+'</small></h3><div class="matches">'+cards.join('')+'</div>'+
         '<div class="tbl"><table><thead><tr><th>Pos</th><th>Team</th><th class="r">W-L-T</th><th class="r">+1s</th><th class="r">Points</th><th class="r">Week '+week+' ACES</th><th class="r">vs baseline</th><th class="r">Baseline</th><th class="r">Seed</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
     }).join('');
@@ -361,7 +409,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
   document.getElementById('lg-trap').onclick=function(){setDisc('trap')};
   document.getElementById('lg-skeet').onclick=function(){setDisc('skeet')};
   wkBox.onclick=function(e){var b=e.target.closest('button[data-wk]');if(!b)return;week=+b.dataset.wk;[].forEach.call(wkBox.children,function(x){x.setAttribute('aria-pressed',x===b)});render();};
-  sel.onchange=render;
+  sel.onchange=function(){if(pick&&String(teamConf[pick])!==sel.value){pick=null;tIn.value='';}render();};
   setup();
 })();
 </script>
