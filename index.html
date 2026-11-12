@@ -119,6 +119,7 @@ tr.mine td.team{font-weight:600}
 .src{font-family:var(--f-display);font-size:.74rem;letter-spacing:.08em;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--muted);margin-left:6px}
 .bar{display:inline-block;height:6px;border-radius:3px;background:var(--orange);vertical-align:middle;margin-left:8px;opacity:.75}
 .pager{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+[hidden]{display:none!important}
 #results .wrap{max-width:1400px}
 td.conf{white-space:normal;min-width:150px;max-width:230px}
 .more{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:.95rem;padding:9px 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
@@ -496,7 +497,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
         '<td class="r aces">'+fmt(r.aces)+'<span class="bar" style="width:'+w+'px"></span></td><td class="r">'+fmt(r.median)+'</td><td class="r">'+fmt(r.q3)+'</td><td class="r">'+fmt(r.q1)+'</td><td class="r">'+fmt(r.lower_whisker)+'</td><td class="r">'+fmt(r.max)+'</td><td class="r">'+r.n+'</td></tr>';
     }).join('');
     pager.hidden=f.length<=shown;var left=f.length-shown;more.textContent='Show '+Math.min(PAGE_MORE,left)+' more ('+left.toLocaleString()+' left)';
-    showAll.textContent='Show all '+f.length.toLocaleString();showAll.hidden=left<=PAGE_MORE;
+    more.hidden=left<=PAGE_MORE;showAll.textContent='Show all '+f.length.toLocaleString();
   }
   function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
   function setDisc(v){disc=v;press('d-trap','d-skeet',v==='trap');shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
