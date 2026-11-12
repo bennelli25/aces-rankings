@@ -145,6 +145,8 @@ td.conf{white-space:normal;min-width:150px;max-width:230px}
 .delta.up{color:var(--orange);font-weight:600}
 .legend{color:var(--muted);font-size:.88rem;margin-top:10px}
 #lg-team{width:320px}
+.disc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#d-more.on{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange)}
 .sbtag{display:inline-block;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#b3261e;color:#fff;vertical-align:middle;white-space:nowrap}
 .sbnote{color:#e0605a}
 .sbtag.ok{background:transparent;color:var(--muted);border:1px solid var(--line)}
@@ -219,7 +221,8 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     </div>
     <div class="controls">
       <div class="field"><span class="lbl">Discipline</span>
-        <div class="tabs" role="group" aria-label="Discipline"><button id="d-trap" data-disc="trap" aria-pressed="true">Trap</button><button id="d-skeet" data-disc="skeet" aria-pressed="false">Skeet</button><button id="d-5stand" data-disc="5stand" aria-pressed="false">5-Stand</button><button id="d-sporting" data-disc="sporting" aria-pressed="false">Sporting</button></div>
+        <div class="disc-row"><div class="tabs" role="group" aria-label="Discipline"><button id="d-trap" data-disc="trap" aria-pressed="true">Trap</button><button id="d-skeet" data-disc="skeet" aria-pressed="false">Skeet</button><button id="d-5stand" data-disc="5stand" aria-pressed="false">5-Stand</button><button id="d-sporting" data-disc="sporting" aria-pressed="false">Sporting</button></div>
+        <select id="d-more" aria-label="More SCTP events"><option value="">More SCTP events…</option><option value="handicap">Handicap trap</option><option value="doubles_trap">Doubles trap</option><option value="doubles_skeet">Doubles skeet</option><option value="intl_trap">International trap (bunker)</option><option value="intl_skeet">International skeet</option><option value="super_sporting">Super sporting</option></select></div>
       </div>
       <div class="field"><label for="ds">Results</label><select id="ds"></select></div>
       <div class="field"><span class="lbl">View</span>
@@ -321,7 +324,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
 </main>
 <footer><div class="wrap">ACES Score Rankings, created and hosted by the Aitkin County Elite Sharpshooters · Updated <span id="upd">–</span>. Scores come from public league results. The ACES Score is our own measure, not an official league ranking.</div></footer>
 
-<script src="rankings.js?v=20261112104345" charset="utf-8"></script>
+<script src="rankings.js?v=20261112104619" charset="utf-8"></script>
 <script src="league.js?v=20261112104352" charset="utf-8"></script>
 <script>
 (function(){
@@ -475,7 +478,7 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody'),more=document.getElementById('more'),showAll=document.getElementById('show-all'),pager=document.getElementById('pager'),meta=document.getElementById('meta');
   if(!D||!D.datasets||!D.datasets.length){tbody.innerHTML='<tr><td class="empty">Rankings have not been generated yet. Run rank.py to build rankings.js.</td></tr>';return;}
   document.getElementById('upd').textContent=D.updated;document.getElementById('min-n').textContent=D.min_scores;
-  var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i,DISCS=['trap','skeet','5stand','sporting'];
+  var disc='trap',view='teams',shown=PAGE_FIRST,mineOnly=false,MINE=/aitkin county elite sharpshooters/i,DISCS=['trap','skeet','5stand','sporting'],dMore=document.getElementById('d-more');
   function load(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
   function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -509,9 +512,11 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
     more.hidden=left<=PAGE_MORE;showAll.textContent='Show all '+f.length.toLocaleString();
   }
   function press(a,b,on){document.getElementById(a).setAttribute('aria-pressed',on);document.getElementById(b).setAttribute('aria-pressed',!on);}
-  function setDisc(v){disc=v;DISCS.forEach(function(k){document.getElementById('d-'+k).setAttribute('aria-pressed',k===v)});shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
+  function setDisc(v){disc=v;DISCS.forEach(function(k){document.getElementById('d-'+k).setAttribute('aria-pressed',k===v)});dMore.value=DISCS.indexOf(v)<0?v:'';dMore.classList.toggle('on',!!dMore.value);shown=PAGE_FIRST;fillDatasets();if(ds.options.length)fillStates();render();}
   function setView(v){view=v;shown=PAGE_FIRST;press('v-teams','v-conf',v==='teams');render();}
   DISCS.forEach(function(k){document.getElementById('d-'+k).onclick=function(){setDisc(k)}});
+  dMore.onchange=function(){setDisc(dMore.value||'trap')};
+  [].forEach.call(dMore.options,function(o){if(o.value&&!D.datasets.some(function(d){return d.discipline===o.value}))o.disabled=true});
   document.getElementById('v-teams').onclick=function(){setView('teams')};
   document.getElementById('v-conf').onclick=function(){setView('conf')};
   find.onclick=function(){mineOnly=!mineOnly;find.setAttribute('aria-pressed',mineOnly);if(mineOnly)setView('teams');else render();};
