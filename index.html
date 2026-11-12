@@ -143,11 +143,16 @@ td.conf{white-space:normal;min-width:150px;max-width:230px}
 .mmeta{font-size:.82rem;color:var(--muted)}
 .delta.up{color:var(--orange);font-weight:600}
 .legend{color:var(--muted);font-size:.88rem;margin-top:10px}
-#lg-team{width:280px}
+#lg-team{width:320px}
+.tcard .thead .x{margin-left:0}
 .lg-msg{color:var(--muted);font-size:.9rem;align-self:center}
-.tcard{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:6px;padding:14px 16px;margin-top:8px;display:grid;gap:10px}
-.tcard h3{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0}
-.tcard h3 small{font-family:var(--f-body);text-transform:none;font-weight:400;font-size:.9rem;color:var(--muted)}
+.tcard{margin-top:12px;display:grid;gap:10px;justify-items:start}
+.tcard .thead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%}
+.tcard h3{margin:0}
+.tcard .sub{color:var(--muted);font-size:.92rem;margin:0}
+.tcard .tbl{max-width:100%}
+.tcard table{width:auto}
+.tcard td.team{min-width:220px}
 .tcard tr[data-wk]{cursor:pointer}
 .tcard tr.cur td{background:var(--hl)}
 .tcard .x{font:inherit;font-size:.85rem;background:none;border:1px solid var(--line);border-radius:4px;padding:2px 8px;color:var(--muted);cursor:pointer;margin-left:auto}
@@ -366,8 +371,9 @@ footer{padding-block:28px;color:var(--muted);font-size:.85rem}
       var r=w.results.filter(function(x){return x.team===pick})[0];if(!r)return '';
       var o=r.opp?w.results.filter(function(x){return x.team===r.opp})[0]:null,dl=r.aces==null?null:r.aces-r.baseline;
       return '<tr data-wk="'+w.wk+'"'+(w.wk===week?' class="cur"':'')+'><td class="rk">'+w.wk+'</td><td class="team">'+(o?esc(o.team):'Conference average (bye)')+'</td><td class="r aces">'+f(r.aces)+'</td><td class="r">'+f(o?o.aces:w.avg)+'</td><td class="r">'+r.r+(r.b?' +1':'')+'</td><td class="r">'+r.p+'</td><td class="r"><span class="delta'+(dl>0?' up':'')+'">'+(dl==null?'–':(dl>0?'+':'')+f(dl))+'</span></td></tr>'}).join('');
-    tCard.innerHTML='<div class="tcard"><h3>'+esc(pick)+' <small>'+esc(c.name)+' · seed '+tm.seed+' · baseline '+f(tm.baseline)+' · through week '+week+': '+me.w+'-'+me.l+'-'+me.t+', '+me.p+' pts, '+pos+' of '+st.length+'</small><button class="x" type="button" id="lg-clear">Clear</button></h3>'+
-      '<div class="tbl"><table><thead><tr><th>Week</th><th>Opponent</th><th class="r">Team ACES</th><th class="r">Opp. ACES</th><th class="r">Result</th><th class="r">Points</th><th class="r">vs baseline</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    tCard.innerHTML='<div class="tcard"><div class="thead"><h3>'+esc(pick)+': schedule &amp; results</h3><button class="x" type="button" id="lg-clear">Clear</button></div>'+
+      '<p class="sub">'+esc(c.name)+' · seed '+tm.seed+' · baseline '+f(tm.baseline)+' · through week '+week+': '+me.w+'-'+me.l+'-'+me.t+', '+me.p+' pts, '+pos+' of '+st.length+' in the conference. Click a week to see that week\'s matchups.</p>'+
+      '<div class="tbl"><table><thead><tr><th>Week</th><th>Opponent</th><th class="r">Their ACES</th><th class="r">Opp. ACES</th><th class="r">Result</th><th class="r">Points</th><th class="r">vs baseline</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
   function findTeam(v,loose){
     v=v.trim().toLowerCase();if(!v)return null;
